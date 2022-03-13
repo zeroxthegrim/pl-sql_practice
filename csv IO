@@ -1,0 +1,37 @@
+DECLARE
+    var1 utl_file.file_type;
+    var2 utl_file.file_type;
+    x_read varchar2(255);
+    y_write varchar2(255);
+    v_employee_id employees.employee_id%TYPE;
+    v_first_name employees.first_name%TYPE;
+    v_last_name employees.last_name%TYPE;
+    v_email employees.email%TYPE;
+    v_salary employees.salary%TYPE;
+BEGIN
+    var1 := utl_file.fopen('PROBA', 'proba2.csv', 'r');
+    var2 := utl_file.fopen('PROBA', 'output_file2.csv', 'w');
+    utl_file.get_line(var1, x_read);
+    loop
+    utl_file.get_line(var1, x_read);
+    SELECT e.employee_id,
+           e.first_name,
+           e.last_name,
+           e.email,
+           e.salary
+    INTO v_employee_id, v_first_name, v_last_name, v_email, v_salary
+    FROM employees e
+    WHERE e.employee_id = x_read;
+    
+    utl_file.put_line(var2, v_employee_id || ',' || v_first_name || ',' ||
+        v_last_name || ',' || v_email || ',' || v_salary);
+    --DBMS_OUTPUT.PUT_LINE(x_read);
+    end loop;
+    utl_file.fclose(var1);
+    utl_file.fclose(var2);
+    exception 
+        when no_data_found then
+        utl_file.fclose(var1);
+        utl_file.fclose(var2);
+END;
+/
